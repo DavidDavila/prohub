@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import Login from 'component/login/';
 import styler from 'react-styling';
 
 
@@ -32,13 +32,7 @@ export default class Page extends Component {
 			<section className="table" style={style.container}>
 				<div className="table-cell">
 					<div className="container">
-						<h1 style={style.header}>
-							BoilerPlate
-						</h1>
-						<h2 style={style.marginBottom}>
-							Redux, React Universal, Webpack, Validador de código, Control de metadatado, Sass, Styles inline, Live Reload
-						</h2>
-						<img src="static/images/logo.png" style={style.image}/>
+						<Login/>
 					</div>
 				</div>
 			</section>

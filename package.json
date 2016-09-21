@@ -14,6 +14,7 @@
   "author": "David Dávila",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.14.0",
     "body-parser": "^1.15.2",
     "express": "^4.13.3",
     "history": "^1.17.0",

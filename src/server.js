@@ -24,8 +24,6 @@ const hostname = 'localhost';
 const port     = 3007;
 
 function getMarkup(store, render_props, metadata) {
-  console.log(metadata);
-  console.log(store);
   const component = (
     <Provider store={store} key="provider">
       <RoutingContext {...render_props} />
@@ -63,6 +61,30 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(methodOverride());
 
+
+// WEB
+app.get('/', function (req, res) {
+  match({
+    location: req.url,
+    routes: Route
+  }, function (error, redirection_location, render_props) {
+    if (error) {
+      console.error('Router error:', error);
+
+      res.status(500).send(error.message);
+    } else if (redirection_location) {
+      res.redirect(302, redirectLocation.pathname + redirection_location.search);
+    } else if (render_props) {
+
+      const store = configureStore({});
+
+      res.status(200).send(getMarkup(store, render_props, Meta[req.url] ));
+    } else {
+      res.status(400).send('Not Found');
+    }
+  });
+});
+
 // API routes
 var rooter = express.Router();
 
@@ -88,30 +110,6 @@ rooter.route('/client/:id/validate')
   .post(ClientCtrl.validateClient);
 
 app.use('/api', rooter);
-
-
-// WEB
-app.get('/', function (req, res) {
-  match({
-    location: req.url,
-    routes: Route
-  }, function (error, redirection_location, render_props) {
-    if (error) {
-      console.error('Router error:', error);
-
-      res.status(500).send(error.message);
-    } else if (redirection_location) {
-      res.redirect(302, redirectLocation.pathname + redirection_location.search);
-    } else if (render_props) {
-
-      const store = configureStore({});
-
-      res.status(200).send(getMarkup(store, render_props, Meta[req.url] ));
-    } else {
-      res.status(400).send('Not Found');
-    }
-  });
-});
 
 
 // Create Server 

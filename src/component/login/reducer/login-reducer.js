@@ -1,12 +1,12 @@
-import { DECREMENT, INCREMENT } from '../action/login-action';
+import { LOGIN } from '../action/login-action';
 
-export default function loginReducer(state = 0, action) {
+export default function loginReducer(state = {}, action) {
+
   switch (action.type) {
-    case DECREMENT:
-      return state - 1;
-    case INCREMENT:
-      return state + 1;
+    case LOGIN:
+      console.log(action);
+      return Object.assign({}, state, { response: action.project });
     default:
       return state;
-  }
+  };
 }

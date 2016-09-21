@@ -1,6 +1,6 @@
 import { DECREMENT, INCREMENT } from '../action/counter-action';
 
-export default function homeReducer(state = 0, action) {
+export default function loginReducer(state = 0, action) {
   switch (action.type) {
     case DECREMENT:
       return state - 1;

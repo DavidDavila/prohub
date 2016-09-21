@@ -9,7 +9,7 @@ const createStoreWithMiddleware = applyMiddleware(
 )(createStore);
 
 export default function configureStore(initial_state) {
-  const store = createStoreWithMiddleware(reducer, initial_state);
+  const store = createStoreWithMiddleware(reducer);
 
   if (module.hot) {
     module.hot.accept('../reducer', () => {
