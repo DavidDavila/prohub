@@ -1,4 +1,6 @@
-var mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import service from './../service';
+
 var Client  = mongoose.model('CLIENT');
 
 // GET - Return all Clients in the DB
@@ -14,7 +16,7 @@ exports.findAllClients = function (req, res) {
 
 // GET - Return a Client with specified NAME
 exports.findByName = function (req, res) {  
-  Client.findOne( { 'name' : req.params.id }, function (err, client) {
+  Client.findOne({ 'name' : req.params.id }, function (err, client) {
     if (err) {
       return res.send(500, err.message);
     };
@@ -34,14 +36,13 @@ exports.addClient = function (req, res) {
     if (err) {
       return res.status(500).send( err.message);
     };
-    res.status(200).jsonp(clientSaved._id);
+    res.status(200).jsonp(clientSaved);
   });
 };
 
 // PUT - Update a register already exists
 exports.updateClient = function (req, res) {  
-  Client.findById(req.params.id, function (err, client) {
-
+  Client.findOne({ 'name' : req.params.id }, function (err, client) {
     client.name = req.body.name;
     client.projects = req.body.projects;
     client.contacts = req.body.contacts;
@@ -64,5 +65,33 @@ exports.deleteClient = function (req, res) {
       };
       res.status(200).send();
     });
+  });
+};
+
+// POST - Validate a Contact with specified email Client
+exports.validateClient = function (req, res) {  
+  Client.findOne( { 'name' : req.params.id }, function (err, client) {
+    if (err) {
+      return res.send(500);
+    };
+    var userData = {};
+    let auth = false;
+    client.projects.map((project)=>{
+      userData.thisProject = project;
+      project.contacts.map((contact)=>{
+        if (contact.password === req.body.password && contact.email === req.body.email ) {
+          auth = true;
+          userData.thisContact = contact;
+        }
+      });
+    });
+
+    userData.token = service.createToken(userData.thisContact.email);
+
+    if (!auth ) {
+      return res.send(500);
+    }
+    console.log('POST ' + req.params.id + '/validate');
+    res.status(200).jsonp(userData);
   });
 };

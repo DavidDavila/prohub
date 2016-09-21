@@ -14,3 +14,6 @@ export const Meta = {
     'socialText' : 'Texto social de config'
   }
 };
+module.exports = {
+  TOKEN_SECRET: process.env.TOKEN_SECRET || 'hermanosClever'
+};

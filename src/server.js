@@ -14,6 +14,7 @@ import configureStore from './store/configure-store';
 import HtmlContainer from './layout/html';
 import RouteContainer from './route';
 import { Meta } from './config';
+import middleware from './middleware';
 
 let Html = HtmlContainer;
 let Route = RouteContainer;
@@ -74,13 +75,16 @@ rooter.route('/user/:id')
   .delete(UserCtrl.deleteUser);
 
 rooter.route('/client')
-  .get(ClientCtrl.findAllClients)
+  .get(middleware.ensureAuthenticated, ClientCtrl.findAllClients)
   .post(ClientCtrl.addClient);
 
 rooter.route('/client/:id')
   .get(ClientCtrl.findByName)
   .put(ClientCtrl.updateClient)
   .delete(ClientCtrl.deleteClient);
+
+rooter.route('/client/:id/validate')
+  .post(ClientCtrl.validateClient);
 
 app.use('/api', rooter);
 
