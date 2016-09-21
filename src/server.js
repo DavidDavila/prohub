@@ -13,7 +13,7 @@ import { renderToString } from 'react-dom/server';
 import configureStore from './store/configure-store';
 import HtmlContainer from './layout/html';
 import RouteContainer from './route';
-import { Meta } from './config';
+import { Meta } from './config/metadata';
 import middleware from './middleware';
 
 let Html = HtmlContainer;
@@ -24,7 +24,8 @@ const hostname = 'localhost';
 const port     = 3007;
 
 function getMarkup(store, render_props, metadata) {
-  
+  console.log(metadata);
+  console.log(store);
   const component = (
     <Provider store={store} key="provider">
       <RoutingContext {...render_props} />

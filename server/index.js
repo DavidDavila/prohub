@@ -27,7 +27,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "f8f961476f27aa934606"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "b66591f107e273cd3ae7"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -680,9 +680,9 @@
 	
 	var _route2 = _interopRequireDefault(_route);
 	
-	var _config = __webpack_require__(14);
+	var _metadata = __webpack_require__(184);
 	
-	var _middleware = __webpack_require__(184);
+	var _middleware = __webpack_require__(185);
 	
 	var _middleware2 = _interopRequireDefault(_middleware);
 	
@@ -696,7 +696,8 @@
 	var port = 3007;
 	
 	function getMarkup(store, render_props, metadata) {
-	
+	  console.log(metadata);
+	  console.log(store);
 	  var component = _react2.default.createElement(
 	    _reactRedux.Provider,
 	    { store: store, key: 'provider' },
@@ -761,7 +762,7 @@
 	
 	      var store = (0, _configureStore2.default)({});
 	
-	      res.status(200).send(getMarkup(store, render_props, _config.Meta[req.url]));
+	      res.status(200).send(getMarkup(store, render_props, _metadata.Meta[req.url]));
 	    } else {
 	      res.status(400).send('Not Found');
 	    }
@@ -1019,25 +1020,6 @@
 
 	'use strict';
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var Meta = exports.Meta = {
-	  '/': {
-	    'title': 'Título BoilerPlate',
-	    'description': 'Descripción',
-	    'keywords': ' BoilerPlate, plantilla, template, redux',
-	    'image': 'statics/share/home.png',
-	    'socialText': 'Texto social de config'
-	  },
-	  '/contador': {
-	    'title': 'Título Contador',
-	    'description': 'Descripción Contador',
-	    'keywords': ' Contador, redux',
-	    'image': 'statics/share/home.png',
-	    'socialText': 'Texto social de config'
-	  }
-	};
 	module.exports = {
 	  TOKEN_SECRET: process.env.TOKEN_SECRET || 'hermanosClever'
 	};
@@ -20556,6 +20538,32 @@
 
 /***/ },
 /* 184 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var Meta = exports.Meta = {
+	  '/': {
+	    'title': 'Título BoilerPlate',
+	    'description': 'Descripción',
+	    'keywords': ' BoilerPlate, plantilla, template, redux',
+	    'image': 'statics/share/home.png',
+	    'socialText': 'Texto social de config'
+	  },
+	  '/contador': {
+	    'title': 'Título Contador',
+	    'description': 'Descripción Contador',
+	    'keywords': ' Contador, redux',
+	    'image': 'statics/share/home.png',
+	    'socialText': 'Texto social de config'
+	  }
+	};
+
+/***/ },
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
