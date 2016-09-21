@@ -3,12 +3,13 @@ import React from 'react';
 import mongoose from 'mongoose';
 import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
-import './models/tvshow';
-import TVShowCtrl from './controllers/tvshows';
+import './models/client';
+import ClientCtrl from './controllers/client';
+import './models/user';
+import UserCtrl from './controllers/user';
 import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
 import { renderToString } from 'react-dom/server';
-
 import configureStore from './store/configure-store';
 import HtmlContainer from './layout/html';
 import RouteContainer from './route';
@@ -47,7 +48,7 @@ app.use('/static', express.static('public'));
 
 // Connection to DB
 
-mongoose.connect('mongodb://localhost/tvshows', function (err, res) {
+mongoose.connect('mongodb://localhost/', function (err, res) {
   if (err) {
     throw err;
   };
@@ -61,18 +62,27 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 
 // API routes
-var tvshows = express.Router();
+var rooter = express.Router();
 
-tvshows.route('/tvshows')
-  .get(TVShowCtrl.findAllTVShows)
-  .post(TVShowCtrl.addTVShow);
+rooter.route('/user')
+  .get(UserCtrl.findAllUsers)
+  .post(UserCtrl.addUser);
 
-tvshows.route('/tvshows/:id')
-  .get(TVShowCtrl.findById)
-  .put(TVShowCtrl.updateTVShow)
-  .delete(TVShowCtrl.deleteTVShow);
 
-app.use('/api', tvshows);
+rooter.route('/user/:id')
+  .put(UserCtrl.updateUser)
+  .delete(UserCtrl.deleteUser);
+
+rooter.route('/client')
+  .get(ClientCtrl.findAllClients)
+  .post(ClientCtrl.addClient);
+
+rooter.route('/client/:id')
+  .get(ClientCtrl.findByName)
+  .put(ClientCtrl.updateClient)
+  .delete(ClientCtrl.deleteClient);
+
+app.use('/api', rooter);
 
 
 // WEB
@@ -97,6 +107,9 @@ app.get('/', function (req, res) {
     }
   });
 });
+
+
+// Create Server 
 
 app.listen(port, function (error) {
   if (error) {
