@@ -7,7 +7,8 @@ var Client  = mongoose.model('CLIENT');
 exports.findAllClients = function (req, res) {  
   Client.find(function (err, clients) {
     if (err) {
-      res.send(500, err.message);
+      return res.send(404);
+
     };
     console.log('GET /clients');
     res.status(200).jsonp(clients);
@@ -18,7 +19,8 @@ exports.findAllClients = function (req, res) {
 exports.findByName = function (req, res) {  
   Client.findOne({ 'name' : req.params.id }, function (err, client) {
     if (err) {
-      return res.send(500, err.message);
+      return res.send(404, err);
+
     };
     console.log('GET /client/' + req.params.id);
     res.status(200).jsonp(client);
@@ -28,13 +30,13 @@ exports.findByName = function (req, res) {
 // POST - Insert a new Client in the DB
 exports.addClient = function (req, res) {  
   console.log('POST');
-  console.log(req.body);
 
   var client = new Client(req.body);
 
   client.save(function (err, clientSaved) {
     if (err) {
-      return res.status(500).send( err.message);
+      return res.send(err);
+
     };
     res.status(200).jsonp(clientSaved);
   });
@@ -49,7 +51,8 @@ exports.updateClient = function (req, res) {
     client.milestones = req.body.milestones;
     client.save(function (errSave) {
       if (errSave) {
-        return res.status(500).send(errSave.message);
+        return res.send(404);
+
       };
       res.status(200).jsonp(client);
     });
@@ -61,7 +64,7 @@ exports.deleteClient = function (req, res) {
   Client.findById(req.params.id, function (err, client) {
     client.remove(function (errRemove) {
       if (errRemove) {
-        return res.status(500).send(errRemove.message);
+        return res.send(404);
       };
       res.status(200).send();
     });
@@ -72,26 +75,25 @@ exports.deleteClient = function (req, res) {
 exports.validateClient = function (req, res) {  
   Client.findOne( { 'name' : req.params.id }, function (err, client) {
     if (err) {
-      return res.send(500);
+      return res.send(500, err.message);
     };
     var userData = {};
-    let auth = false;
+    userData.thisProject = [];
     client.projects.map((project)=>{
-      userData.thisProject = project;
       project.contacts.map((contact)=>{
         if (contact.password === req.body.password && contact.email === req.body.email ) {
-          auth = true;
+          userData.thisProject.push(project);
           userData.thisContact = contact;
+          
         }
       });
     });
-
-    userData.token = service.createToken(userData.thisContact.email);
-
-    if (!auth ) {
-      return res.send(500);
-    }
     console.log('POST ' + req.params.id + '/validate');
-    res.status(200).jsonp(userData);
+    if (!userData.thisContact) {
+      return res.sendStatus(403);
+    }else {
+      userData.token = service.createToken(req.body.email);
+      return res.status(200).jsonp(userData);
+    }
   });
 };

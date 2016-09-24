@@ -9,12 +9,15 @@ const style = styler`
 
 export class Login extends Component {
 
-  componentDidMount() {
-    
+  componentDidUpdate(NextProps) {
+    if (this.props.loginReducer) {
+      this._reactInternalInstance._context.history.push('/admin');
+    }
   }
 
+
   render() {
-    
+    console.log(this._reactInternalInstance._context.store.getState());
     return (
       <div>
         <h2> 
@@ -28,10 +31,7 @@ export class Login extends Component {
   };
 }
 function mapStateToProps(state) {
-  
-  return {
-    project: state.list
-  };
+  return  state;
 };
 
 export default connect(mapStateToProps, loginAction )(Login);

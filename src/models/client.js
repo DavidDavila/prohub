@@ -12,15 +12,15 @@ var clientSchema = new Schema({
       email : String,
       phone : String,
       password : String
-    }]
+    }],
+    milestone : [{
+      title : String,
+      description: String,
+      state : Number,
+      date : Date,
+      links : [String]
+    }],
   }],
-  milestones : [{ 
-    title : String,
-    description : String,
-    type : String,
-    date : Date,
-    links : [String]
-  }]
 });
  
 module.exports = mongoose.model('CLIENT', clientSchema);  

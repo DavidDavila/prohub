@@ -27,7 +27,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "61a78355c2d4293442fc"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "b6ace526c361daa5ae5e"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -847,14 +847,14 @@
 	      email: String,
 	      phone: String,
 	      password: String
+	    }],
+	    milestone: [{
+	      title: String,
+	      description: String,
+	      state: Number,
+	      date: Date,
+	      links: [String]
 	    }]
-	  }],
-	  milestones: [{
-	    title: String,
-	    description: String,
-	    type: String,
-	    date: Date,
-	    links: [String]
 	  }]
 	});
 	
@@ -882,7 +882,7 @@
 	exports.findAllClients = function (req, res) {
 	  Client.find(function (err, clients) {
 	    if (err) {
-	      res.send(500, err.message);
+	      return res.send(404);
 	    };
 	    console.log('GET /clients');
 	    res.status(200).jsonp(clients);
@@ -893,7 +893,7 @@
 	exports.findByName = function (req, res) {
 	  Client.findOne({ 'name': req.params.id }, function (err, client) {
 	    if (err) {
-	      return res.send(500, err.message);
+	      return res.send(404, err);
 	    };
 	    console.log('GET /client/' + req.params.id);
 	    res.status(200).jsonp(client);
@@ -903,13 +903,12 @@
 	// POST - Insert a new Client in the DB
 	exports.addClient = function (req, res) {
 	  console.log('POST');
-	  console.log(req.body);
 	
 	  var client = new Client(req.body);
 	
 	  client.save(function (err, clientSaved) {
 	    if (err) {
-	      return res.status(500).send(err.message);
+	      return res.send(err);
 	    };
 	    res.status(200).jsonp(clientSaved);
 	  });
@@ -924,7 +923,7 @@
 	    client.milestones = req.body.milestones;
 	    client.save(function (errSave) {
 	      if (errSave) {
-	        return res.status(500).send(errSave.message);
+	        return res.send(404);
 	      };
 	      res.status(200).jsonp(client);
 	    });
@@ -936,7 +935,7 @@
 	  Client.findById(req.params.id, function (err, client) {
 	    client.remove(function (errRemove) {
 	      if (errRemove) {
-	        return res.status(500).send(errRemove.message);
+	        return res.send(404);
 	      };
 	      res.status(200).send();
 	    });
@@ -947,27 +946,25 @@
 	exports.validateClient = function (req, res) {
 	  Client.findOne({ 'name': req.params.id }, function (err, client) {
 	    if (err) {
-	      return res.send(500);
+	      return res.send(500, err.message);
 	    };
 	    var userData = {};
-	    var auth = false;
+	    userData.thisProject = [];
 	    client.projects.map(function (project) {
-	      userData.thisProject = project;
 	      project.contacts.map(function (contact) {
 	        if (contact.password === req.body.password && contact.email === req.body.email) {
-	          auth = true;
+	          userData.thisProject.push(project);
 	          userData.thisContact = contact;
 	        }
 	      });
 	    });
-	
-	    userData.token = _service2.default.createToken(userData.thisContact.email);
-	
-	    if (!auth) {
-	      return res.send(500);
-	    }
 	    console.log('POST ' + req.params.id + '/validate');
-	    res.status(200).jsonp(userData);
+	    if (!userData.thisContact) {
+	      return res.sendStatus(403);
+	    } else {
+	      userData.token = _service2.default.createToken(req.body.email);
+	      return res.status(200).jsonp(userData);
+	    }
 	  });
 	};
 
@@ -19853,14 +19850,17 @@
 	var _loginAction = __webpack_require__(174);
 	
 	function loginReducer() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 	  var action = arguments[1];
 	
 	
 	  switch (action.type) {
 	    case _loginAction.LOGIN:
-	      console.log(action);
-	      return Object.assign({}, state, { response: action.project });
+	      return Object.assign({}, state, action.project);
+	      break;
+	    case _loginAction.LOGIN_ERROR:
+	      return false;
+	      break;
 	    default:
 	      return state;
 	  };
@@ -19875,7 +19875,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.LOGIN = undefined;
+	exports.LOGIN_ERROR = exports.LOGIN = undefined;
 	exports.login = login;
 	
 	var _axios = __webpack_require__(175);
@@ -19885,14 +19885,17 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var LOGIN = exports.LOGIN = 'LOGIN';
+	var LOGIN_ERROR = exports.LOGIN_ERROR = 'LOGIN_ERROR';
 	
 	function login() {
 	  return function (dispatch, getState) {
-	    _axios2.default.post('/api/client/Patch/validate', {
+	    _axios2.default.post('/api/client/Evercom/validate', {
 	      'email': 'test@test.com',
 	      'password': '1234'
 	    }).then(function (response) {
 	      dispatch({ type: LOGIN, project: response.data }, getState());
+	    }).catch(function (error) {
+	      dispatch({ type: LOGIN_ERROR }, getState());
 	    });
 	  };
 	};
@@ -20012,9 +20015,9 @@
 	
 	var _layout2 = _interopRequireDefault(_layout);
 	
-	var _counter = __webpack_require__(182);
+	var _admin = __webpack_require__(182);
 	
-	var _counter2 = _interopRequireDefault(_counter);
+	var _admin2 = _interopRequireDefault(_admin);
 	
 	var _home = __webpack_require__(184);
 	
@@ -20034,7 +20037,7 @@
 	  _reactRouter.Route,
 	  { path: '/', component: _layout2.default },
 	  _react2.default.createElement(_reactRouter.IndexRoute, { component: _home2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: '/contador', component: _counter2.default }),
+	  _react2.default.createElement(_reactRouter.Route, { path: '/admin', component: _admin2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '/login', component: _login2.default }),
 	  _react2.default.createElement(_reactRouter.Route, { path: '*', component: _notFound2.default })
 	);
@@ -20267,7 +20270,6 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.CounterView = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -20277,13 +20279,13 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _listMilestones = __webpack_require__(183);
+	
+	var _listMilestones2 = _interopRequireDefault(_listMilestones);
+	
 	var _reactStyling = __webpack_require__(180);
 	
 	var _reactStyling2 = _interopRequireDefault(_reactStyling);
-	
-	var _counter = __webpack_require__(183);
-	
-	var _counter2 = _interopRequireDefault(_counter);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -20297,16 +20299,16 @@
 	
 	var style = (0, _reactStyling2.default)(_templateObject);
 	
-	var CounterView = exports.CounterView = function (_Component) {
-		_inherits(CounterView, _Component);
+	var Admin = function (_Component) {
+		_inherits(Admin, _Component);
 	
-		function CounterView() {
-			_classCallCheck(this, CounterView);
+		function Admin() {
+			_classCallCheck(this, Admin);
 	
-			return _possibleConstructorReturn(this, (CounterView.__proto__ || Object.getPrototypeOf(CounterView)).apply(this, arguments));
+			return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).apply(this, arguments));
 		}
 	
-		_createClass(CounterView, [{
+		_createClass(Admin, [{
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
@@ -20318,22 +20320,28 @@
 						_react2.default.createElement(
 							'div',
 							{ className: 'container' },
-							_react2.default.createElement(
-								'h1',
-								null,
-								'Contador'
-							),
-							_react2.default.createElement(_counter2.default, null)
+							this._reactInternalInstance._context.store.getState().loginReducer.thisProject.map(function (project, i) {
+								return _react2.default.createElement(
+									'div',
+									{ key: project._id + '-' + i },
+									_react2.default.createElement(
+										'span',
+										null,
+										project.name
+									),
+									_react2.default.createElement(_listMilestones2.default, null)
+								);
+							})
 						)
 					)
 				);
 			}
 		}]);
 	
-		return CounterView;
+		return Admin;
 	}(_react.Component);
 	
-	exports.default = CounterView;
+	exports.default = Admin;
 
 /***/ },
 /* 183 */
@@ -20344,29 +20352,12 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Counter = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _templateObject = _taggedTemplateLiteral(['\n  b\n    font-size: 40px;\n    font-family: WorkSans\n    margin:60px;\n    display:block;\n    color: #222;\n  p\n    overflow: hidden;\n    display: block;\n    text-align: center;\n'], ['\n  b\n    font-size: 40px;\n    font-family: WorkSans\n    margin:60px;\n    display:block;\n    color: #222;\n  p\n    overflow: hidden;\n    display: block;\n    text-align: center;\n']);
 	
 	var _react = __webpack_require__(5);
 	
 	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactStyling = __webpack_require__(180);
-	
-	var _reactStyling2 = _interopRequireDefault(_reactStyling);
-	
-	var _redux = __webpack_require__(168);
-	
-	var _reactRedux = __webpack_require__(18);
-	
-	var _counterAction = __webpack_require__(172);
-	
-	var counterAction = _interopRequireWildcard(_counterAction);
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -20376,70 +20367,35 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+	var listProjects = function (_React$Component) {
+	  _inherits(listProjects, _React$Component);
 	
-	var style = (0, _reactStyling2.default)(_templateObject);
+	  function listProjects() {
+	    _classCallCheck(this, listProjects);
 	
-	var Counter = exports.Counter = function (_Component) {
-	  _inherits(Counter, _Component);
-	
-	  function Counter() {
-	    _classCallCheck(this, Counter);
-	
-	    return _possibleConstructorReturn(this, (Counter.__proto__ || Object.getPrototypeOf(Counter)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (listProjects.__proto__ || Object.getPrototypeOf(listProjects)).apply(this, arguments));
 	  }
 	
-	  _createClass(Counter, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {}
-	  }, {
+	  _createClass(listProjects, [{
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'h2',
+	      var milestonesArray = [];
+	      props.milestonesArray.map(function (milestone) {
+	        milestonesArray.push(_react2.default.createElement(
+	          'div',
 	          null,
-	          ' El resultado es:',
-	          _react2.default.createElement(
-	            'b',
-	            { style: style.b },
-	            this.props.counter
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'p',
-	          { style: style.p },
-	          _react2.default.createElement(
-	            'button',
-	            { type: 'button', onClick: this.props.decrement },
-	            'Restar'
-	          ),
-	          _react2.default.createElement(
-	            'button',
-	            { type: 'button', onClick: this.props.increment },
-	            'Sumar'
-	          )
-	        )
-	      );
+	          'milestone.title'
+	        ));
+	      });
+	      return milestonesArray;
 	    }
 	  }]);
 	
-	  return Counter;
-	}(_react.Component);
+	  return listProjects;
+	}(_react2.default.Component);
 	
-	Counter.propTypes = {
-	  counter: _react.PropTypes.number.isRequired
-	};
-	
-	exports.default = (0, _reactRedux.connect)(function (state) {
-	  return {
-	    counter: state.counterReducer
-	  };
-	}, function (dispatch) {
-	  return (0, _redux.bindActionCreators)(counterAction, dispatch);
-	})(Counter);
+	exports.default = listProjects;
+	;
 
 /***/ },
 /* 184 */
@@ -20565,12 +20521,16 @@
 	  }
 	
 	  _createClass(Login, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {}
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate(NextProps) {
+	      if (this.props.loginReducer) {
+	        this._reactInternalInstance._context.history.push('/admin');
+	      }
+	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	
+	      console.log(this._reactInternalInstance._context.store.getState());
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -20592,10 +20552,7 @@
 	}(_react.Component);
 	
 	function mapStateToProps(state) {
-	
-	  return {
-	    project: state.list
-	  };
+	  return state;
 	};
 	
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, loginAction)(Login);
