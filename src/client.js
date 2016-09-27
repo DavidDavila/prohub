@@ -13,7 +13,7 @@ import configureStore from './store/configure-store';
 import Route from './route';
 
 const history = createHistory();
-const store = configureStore();
+const store = configureStore({});
 
 syncReduxAndRouter(history, store);
 
@@ -24,5 +24,4 @@ const component = (
     </Router>
   </Provider>
 );
-
 render(component, document.getElementById('root'));

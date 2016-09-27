@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Login from 'component/login/';
 import styler from 'react-styling';
-
+import { connect } from 'react-redux';
 
 const style = styler
 `
@@ -26,16 +26,24 @@ const style = styler
 
 `;
 
-export default class Page extends Component {
+export class Page extends Component {
 	render() {
   return (
 			<section className="table" style={style.container}>
 				<div className="table-cell">
 					<div className="container">
-						<Login/>
+
+						<Login goTo={this.props.history.push} />
+						
 					</div>
 				</div>
 			</section>
 		);
 	}
 }
+
+function mapStateToProps(state) {
+  return  state;
+}
+export default connect(mapStateToProps)(Page);
+

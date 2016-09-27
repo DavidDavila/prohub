@@ -41,7 +41,8 @@ config.module.postLoaders = [{
 
     presets: [
       'es2015',
-      'react'
+      'react',
+      'stage-0'
     ],
 
     // NOTE: https://github.com/gaearon/babel-plugin-react-transform

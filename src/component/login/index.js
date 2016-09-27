@@ -8,16 +8,18 @@ const style = styler`
 `;
 
 export class Login extends Component {
+  constructor(props) {
+    super(props);
+  }
 
   componentDidUpdate(NextProps) {
     if (this.props.loginReducer) {
-      this._reactInternalInstance._context.history.push('/admin');
+      this.props.goTo('/admin');
     }
   }
 
 
   render() {
-    console.log(this._reactInternalInstance._context.store.getState());
     return (
       <div>
         <h2> 
