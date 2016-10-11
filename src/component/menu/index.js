@@ -44,7 +44,7 @@ export default class Menu extends Component {
             <IndexLink to="/" style={style.menu.item.link} activeClassName="selected" className="menu-item">Home</IndexLink>
           </li>
           <li style={style.menu.item}>
-            <Link to="/admin/new-project" style={style.menu.item.link} activeClassName="selected" className="menu-item">New Project</Link>
+            <Link to="/contador" style={style.menu.item.link} activeClassName="selected" className="menu-item">Contador</Link>
           </li>
         </ul>
       </header>

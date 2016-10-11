@@ -1,5 +1,6 @@
 import React from 'react';
 import Menu from './../component/menu';
+import Footer from './../component/footer';
 
 export default function Layout(props) {
 
@@ -8,9 +9,12 @@ export default function Layout(props) {
     require('!style!css!sass!./../../public/styles/style.scss');
 
   }
+
   return (
     <main id="main" style= { { 'display':'none' } } >
+      <Menu/>
       {props.children}
+      <Footer/>
     </main>
   );
 };

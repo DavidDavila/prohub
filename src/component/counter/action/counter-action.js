@@ -1,7 +1,7 @@
 export const DECREMENT = 'DECREMENT';
 export const INCREMENT = 'INCREMENT';
 
-export function decrement(event) {
+export function decrement() {
   return {
     type: DECREMENT
   };

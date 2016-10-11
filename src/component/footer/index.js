@@ -22,7 +22,7 @@ export default class Footer extends Component {
   }
 
   render() {
-    const url = 'https://github.com/HermanosClever/boilerplateReduxUniversal';
+    const url = 'http://github.com/DavidDavila/boilerplate-redux';
     return (
       <footer style={style.footer}>
         <ul>

@@ -1,20 +1,14 @@
 import express from 'express';
 import React from 'react';
-import mongoose from 'mongoose';
-import methodOverride from 'method-override';
-import bodyParser from 'body-parser';
-import './models/client';
-import ClientCtrl from './controllers/client';
-import './models/user';
-import UserCtrl from './controllers/user';
+
 import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
 import { renderToString } from 'react-dom/server';
+
 import configureStore from './store/configure-store';
 import HtmlContainer from './layout/html';
 import RouteContainer from './route';
-import { Meta } from './config/metadata';
-import middleware from './middleware';
+import { Meta } from './config';
 
 let Html = HtmlContainer;
 let Route = RouteContainer;
@@ -24,6 +18,7 @@ const hostname = 'localhost';
 const port     = 3007;
 
 function getMarkup(store, render_props, metadata) {
+  
   const component = (
     <Provider store={store} key="provider">
       <RoutingContext {...render_props} />
@@ -40,57 +35,10 @@ function getMarkup(store, render_props, metadata) {
     />
   );
 }
-
 app.use('/client', express.static('client'));
 app.use('/static', express.static('public'));
 
-
-
-// Connection to DB
-
-mongoose.connect('mongodb://localhost/', function (err, res) {
-  if (err) {
-    throw err;
-  };
-  console.log('Connected to Database');
-});
-
-// Middlewares
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(methodOverride());
-
-
-// API routes
-var rooter = express.Router();
-
-rooter.route('/user')
-  .get(UserCtrl.findAllUsers)
-  .post(UserCtrl.addUser);
-
-
-rooter.route('/user/:id')
-  .put(UserCtrl.updateUser)
-  .delete(UserCtrl.deleteUser);
-
-rooter.route('/client')
-  .get(middleware.ensureAuthenticated, ClientCtrl.findAllClients)
-  .post(ClientCtrl.addClient);
-
-rooter.route('/client/:id')
-  .get(ClientCtrl.findByName)
-  .put(ClientCtrl.updateClient)
-  .delete(ClientCtrl.deleteClient);
-
-rooter.route('/client/:id/validate')
-  .post(ClientCtrl.validateClient);
-
-app.use('/api', rooter);
-
-
-// WEB
-app.get('*', function (req, res) {
+app.use(function (req, res) {
   match({
     location: req.url,
     routes: Route
@@ -112,9 +60,7 @@ app.get('*', function (req, res) {
   });
 });
 
-
-// Create Server 
-
+// SEE: http://stackoverflow.com/questions/12871565/how-to-create-pem-files-for-https-web-server/12907165#12907165
 app.listen(port, function (error) {
   if (error) {
     console.error(error);
@@ -122,7 +68,6 @@ app.listen(port, function (error) {
     console.info(`==> 🌎  Open up https://${hostname}:${port}/ in your browser.`);
   }
 });
-
 
 if (module.hot) {
   console.info('[HMR] Server is listening…');
